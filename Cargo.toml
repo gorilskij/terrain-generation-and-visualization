@@ -7,3 +7,5 @@ edition = "2018"
 [dependencies]
 rand = "0.7.0"
 num-traits = "0.2.8"
+mint = "0.5.4"
+ggez = "0.5.1"

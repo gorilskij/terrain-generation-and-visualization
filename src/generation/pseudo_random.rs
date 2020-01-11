@@ -4,6 +4,7 @@ use crate::generation::Generator;
 
 pub struct PseudoRandomGenerator(ThreadRng);
 
+#[allow(dead_code)]
 impl PseudoRandomGenerator {
     pub fn new() -> Self {
         Self(rand::thread_rng())

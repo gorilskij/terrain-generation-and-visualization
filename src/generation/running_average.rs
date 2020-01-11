@@ -9,6 +9,7 @@ type Pipe = FixedSizePipe<f32>;
 
 pub struct RunningAverageGenerator(Pipe, ThreadRng);
 
+#[allow(dead_code)]
 impl RunningAverageGenerator {
     pub fn new() -> Self {
         let mut pipe = Pipe::new(BUFFER_LENGTH);

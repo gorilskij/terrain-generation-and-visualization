@@ -1,5 +1,4 @@
-use std::ops::{Index, Div};
-use std::iter::Sum;
+use std::ops::Index;
 
 pub struct FixedSizePipe<T> {
     data: Box<[Option<T>]>,
@@ -7,8 +6,8 @@ pub struct FixedSizePipe<T> {
 }
 
 impl<T> FixedSizePipe<T> {
-    pub fn new(size: usize) -> Self {
-        let vec: Vec<Option<T>> = (0..size).map(|_| None).collect();
+    pub fn new(len: usize) -> Self {
+        let vec: Vec<Option<T>> = (0..len).map(|_| None).collect();
         Self {
             data: vec.into_boxed_slice(),
             index: 0,
@@ -26,6 +25,12 @@ impl<T> FixedSizePipe<T> {
         self.data[self.index] = Some(value);
         self.index += 1;
         self.index %= self.data.len()
+    }
+
+    pub fn as_vec(&self) -> Vec<&T> {
+        let mut vec = self.data.as_ref().iter().collect::<Vec<_>>();
+        vec.rotate_left(self.index);
+        vec.iter().filter_map(|o| o.as_ref()).collect::<Vec<_>>()
     }
 }
 

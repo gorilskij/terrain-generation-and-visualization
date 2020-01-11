@@ -2,6 +2,7 @@ use crate::generation::Generator;
 
 pub struct SineGenerator(f32);
 
+#[allow(dead_code)]
 impl SineGenerator {
     pub fn new() -> Self {
         Self(0.0)
