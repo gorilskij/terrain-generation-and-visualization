@@ -21,10 +21,15 @@ impl<T> FixedSizePipe<T> {
             .count()
     }
 
-    pub fn push(&mut self, value: T) {
+    pub fn push_right(&mut self, value: T) {
         self.data[self.index] = Some(value);
-        self.index += 1;
-        self.index %= self.data.len()
+        self.index = (self.index + 1) % self.data.len();
+    }
+
+    pub fn push_left(&mut self, value: T) {
+        self.data[self.index] = Some(value);
+        let len = self.data.len();
+        self.index = (self.index + len - 1) % len;
     }
 
     pub fn as_vec(&self) -> Vec<&T> {

@@ -8,7 +8,8 @@ const DOT_WIDTH: u8 = 2;
 pub struct TermVisual {
     pipe: FixedSizePipe<f32>,
     height: usize,
-    generator: Box<dyn Generator<f32>>
+    generator: Box<dyn Generator<f32>>,
+    at: usize,
 }
 
 #[allow(dead_code)]
@@ -19,12 +20,14 @@ impl TermVisual {
         TermVisual {
             pipe: FixedSizePipe::new(width),
             height,
-            generator: Box::new(generator)
+            generator: Box::new(generator),
+            at: 0,
         }
     }
 
     pub fn advance(&mut self) {
-        self.pipe.push(self.generator.next())
+        self.pipe.push_right(self.generator.at(self.at as isize));
+        self.at += 1;
     }
 }
 

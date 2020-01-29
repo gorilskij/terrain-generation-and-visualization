@@ -8,5 +8,5 @@ pub use running_average::RunningAverageGenerator;
 
 // expects to be normalized [0,1]
 pub trait Generator<T> {
-    fn next(&mut self) -> T;
+    fn at(&mut self, i: isize) -> T;
 }

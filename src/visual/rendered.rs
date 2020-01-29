@@ -11,11 +11,20 @@ use ggez::input::keyboard::KeyCode;
 
 const PIXEL_SCALE: usize = 10;
 
+use Going::*;
+
+#[derive(Eq, PartialEq)]
+enum Going { Left, Right, Not }
+
+const MAX: isize = std::f32::MAX as isize;
+
 pub struct RendVisual<G: Generator<f32>> {
     width: usize,
     height: usize,
     pipe: FixedSizePipe<f32>,
     generator: G,
+    at: isize,
+    going: Going,
 
     ms_per_frame: u128,
     last_update: Instant,
@@ -23,8 +32,20 @@ pub struct RendVisual<G: Generator<f32>> {
 
 impl<G: Generator<f32>> EventHandler for RendVisual<G> {
     fn update(&mut self, _ctx: &mut Context) -> Result<(), GameError> {
-        self.pipe.push(self.generator.next());
+        match self.going {
+            Left => {
+                self.at -= 1;
+                self.pipe.push_left(self.generator.at(self.at % MAX));
+            },
+            Right => {
+                self.at += 1;
+                self.pipe.push_right(self.generator.at(
+                    self.at % MAX + self.pipe.len() as isize));
+            },
+            Not => (),
+        }
 
+        // fps enforcement
         let elapsed = self.last_update.elapsed().as_millis();
         if elapsed < self.ms_per_frame {
             sleep(Duration::from_millis((self.ms_per_frame - elapsed) as u64))
@@ -60,6 +81,16 @@ impl<G: Generator<f32>> EventHandler for RendVisual<G> {
         match key {
             KeyCode::Up => self.set_fps(self.fps() + 5.),
             KeyCode::Down => self.set_fps(self.fps() - 5.),
+            KeyCode::Left => self.going = Left,
+            KeyCode::Right => self.going = Right,
+            _ => (),
+        }
+    }
+
+    fn key_up_event(&mut self, _ctx: &mut Context, key: KeyCode, _mods: KeyMods) {
+        match key {
+            KeyCode::Left if self.going == Left => self.going = Not,
+            KeyCode::Right if self.going == Right => self.going = Not,
             _ => (),
         }
     }
@@ -71,15 +102,19 @@ fn fps2ms_per_frame(fps: u16) -> u128 {
 
 impl<G: Generator<f32>> RendVisual<G> {
     pub fn new(generator: G, height: usize, width: usize) -> Self {
-        Self {
+        let mut it = Self {
             width,
             height,
             pipe: FixedSizePipe::new(width),
             generator,
+            at: 0,
+            going: Not,
 
             ms_per_frame: fps2ms_per_frame(2),
             last_update: Instant::now(),
-        }
+        };
+        it.set_fps(60.);
+        it
     }
 
     fn fps(&self) -> f64 {
@@ -88,7 +123,7 @@ impl<G: Generator<f32>> RendVisual<G> {
 
     fn set_fps(&mut self, fps: f64) {
         let new_fps = match fps {
-            f if f < 1. => 1.,
+            f if f < 10. => 10.,
             f if f > 60. => 60.,
             f => f,
         };

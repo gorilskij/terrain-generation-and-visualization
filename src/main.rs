@@ -7,7 +7,7 @@ fn main() {
         use generation::*;
 //        RunningAverageGenerator::new()
 //        PseudoRandomGenerator::new()
-        SineGenerator::new()
+        SineGenerator
     };
 
 //    let mut visual = visual::TermVisual::new(200, 10, generator);
